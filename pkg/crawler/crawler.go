@@ -89,18 +89,21 @@ func CrawlZingMp3Song(url string) ([]*zingmp3.SongInfoResponse, error) {
 
 	var zingMp3ResBytes [][]byte
 	countZingMp3Res := 0
+Loop:
 	for {
 		select {
 		case res := <-respChan:
 			zingMp3ResBytes = append(zingMp3ResBytes, res)
 			countZingMp3Res++
+			if countZingMp3Res == len(apis) {
+				break Loop
+			}
 		case <-errChan:
 			countZingMp3Res++
 			color.Red("Failed to request ZingMp3 api")
-
-		}
-		if countZingMp3Res == len(apis) {
-			break
+			if countZingMp3Res == len(apis) {
+				break Loop
+			}
 		}
 	}
 

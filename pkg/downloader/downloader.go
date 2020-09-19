@@ -18,7 +18,7 @@ func DownloadFile(folderPath string, filename string, url string, noti chan stri
 	// Get the data
 	resp, err := http.Get(url)
 	if err != nil {
-		noti <-errorMsg
+		noti <- errorMsg
 		return
 	}
 	defer resp.Body.Close()
@@ -26,7 +26,7 @@ func DownloadFile(folderPath string, filename string, url string, noti chan stri
 	// Create the file
 	out, err := os.Create(filePath)
 	if err != nil {
-		noti <-errorMsg
+		noti <- errorMsg
 		return
 	}
 	defer out.Close()
@@ -34,10 +34,10 @@ func DownloadFile(folderPath string, filename string, url string, noti chan stri
 	// Write the body to file
 	_, err = io.Copy(out, resp.Body)
 	if err != nil {
-		noti <-errorMsg
+		noti <- errorMsg
 		return
 	}
-	noti <-fmt.Sprintf("Download %s successfully!", filename)
+	noti <- fmt.Sprintf("Download %s successfully!", filename)
 	return
 }
 
@@ -60,15 +60,17 @@ func DownloadSongs(source string, urls []string, folderPath string) error {
 		}
 
 		downloadedFile := 0
+	Loop:
 		for {
 			select {
-			case message := <- downloaderChan: {
-				color.Cyan(message)
-				downloadedFile++
-			}
-			}
-			if downloadedFile == len(zingMp3Responses) {
-				break
+			case message := <-downloaderChan:
+				{
+					color.Cyan(message)
+					downloadedFile++
+					if downloadedFile == len(zingMp3Responses) {
+						break Loop
+					}
+				}
 			}
 		}
 		color.Green("DONE!")
