@@ -11,6 +11,7 @@ import (
 
 	"github.com/chromedp/cdproto/dom"
 	"github.com/chromedp/chromedp"
+	"github.com/fatih/color"
 	"github.com/thaidzai285/dzai-mp3-crawler-service/pkg/assemble"
 	"github.com/thaidzai285/dzai-mp3-crawler-service/pkg/httpreq"
 	"github.com/thaidzai285/dzai-mp3-crawler-service/pkg/httpreq/types/zingmp3"
@@ -55,7 +56,7 @@ func GetZingMp3SongCodes(str string) []string {
 }
 
 // CrawlZingMp3Song will crawl zingmp3 page by url
-func CrawlZingMp3Song(url string) (*zingmp3.SongInfoResponse, error) {
+func CrawlZingMp3Song(url string) ([]*zingmp3.SongInfoResponse, error) {
 	dir, err := ioutil.TempDir("", "chromedp-crawler")
 	if err != nil {
 		return nil, err
@@ -65,7 +66,7 @@ func CrawlZingMp3Song(url string) (*zingmp3.SongInfoResponse, error) {
 		chromedp.DisableGPU,
 		chromedp.NoDefaultBrowserCheck,
 		// use headless browser on production
-		chromedp.Flag("headless", false),
+		// chromedp.Flag("headless", false),
 		chromedp.UserDataDir(dir),
 	)
 
@@ -78,15 +79,40 @@ func CrawlZingMp3Song(url string) (*zingmp3.SongInfoResponse, error) {
 	zingHTML := ScrapingZingMp3(chromeCtx, url, "#main-body")
 	codes := GetZingMp3SongCodes(zingHTML)
 	apis := assemble.ZingMp3SongAPIs(codes, "/song/get-song-info")
-	zingMp3ResBytes, err := httpreq.Call(apis[0], "GET", nil)
-	if err != nil {
-		return nil, err
+
+	respChan := make(chan []byte)
+	errChan := make(chan error)
+
+	for _, api := range apis {
+		go httpreq.Call(api, "GET", nil, respChan, errChan)
 	}
 
-	zingMp3Res := &zingmp3.SongInfoResponse{}
-	err = json.Unmarshal(zingMp3ResBytes, zingMp3Res)
-	if err != nil {
-		return nil, err
+	var zingMp3ResBytes [][]byte
+	countZingMp3Res := 0
+	for {
+		select {
+		case res := <-respChan:
+			zingMp3ResBytes = append(zingMp3ResBytes, res)
+			countZingMp3Res++
+		case <-errChan:
+			countZingMp3Res++
+			color.Red("Failed to request ZingMp3 api")
+
+		}
+		if countZingMp3Res == len(apis) {
+			break
+		}
 	}
-	return zingMp3Res, nil
+
+	zingMp3Responses := []*zingmp3.SongInfoResponse{}
+	for _, resByte := range zingMp3ResBytes {
+		zingMp3Res := &zingmp3.SongInfoResponse{}
+		err = json.Unmarshal(resByte, zingMp3Res)
+		if err != nil {
+			color.Red("Failed to parse ZingMp3 api reponse")
+			continue
+		}
+		zingMp3Responses = append(zingMp3Responses, zingMp3Res)
+	}
+	return zingMp3Responses, nil
 }
