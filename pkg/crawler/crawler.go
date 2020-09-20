@@ -43,10 +43,8 @@ func ScrapingZingMp3(ctx context.Context, url string, selector string) string {
 			}
 
 			html, err = dom.GetOuterHTML().WithNodeID(node.NodeID).Do(ctx)
-			color.Blue("html", html)
 			return err
 		}),
-		// chromedp.WaitVisible("abc"),
 	}
 	chromedp.Run(ctx, scrapingTasks...)
 	return html
@@ -79,7 +77,7 @@ func CrawlZingMp3Song(ctx context.Context, url string) ([]*zingmp3.SongInfoRespo
 		chromedp.DisableGPU,
 		chromedp.NoDefaultBrowserCheck,
 		// use headless browser on production
-		chromedp.Flag("headless", false),
+		// chromedp.Flag("headless", false),
 		chromedp.UserDataDir(dir),
 	)
 
@@ -91,9 +89,7 @@ func CrawlZingMp3Song(ctx context.Context, url string) ([]*zingmp3.SongInfoRespo
 	defer chromeCtxCancel()
 	zingHTML := ScrapingZingMp3(chromeCtx, url, "#main-body")
 	codes := GetZingMp3SongCodes(zingHTML)
-	color.Blue("codes", len(codes))
 	apis := assemble.ZingMp3SongAPIs(codes, "/song/get-song-info")
-	color.Blue("apis", len(apis))
 
 	respChan := make(chan []byte)
 	errChan := make(chan error)
