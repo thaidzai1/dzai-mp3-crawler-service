@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"flag"
 	"os"
 
@@ -11,20 +12,25 @@ import (
 )
 
 var (
+	ctxCancel   context.CancelFunc
+	ctx         context.Context
 	flSongsFile = flag.String("download", "", "Path to list songs want to download")
 )
 
 func main() {
+	ctx, ctxCancel = context.WithCancel(context.Background())
 	flag.Parse()
 	if *flSongsFile == "" {
 		panic("Error songs file not found")
 	}
 
-	color.Cyan("Parsing config file...")
-	config := schema.LoadDownloadSongsConfig(*flSongsFile)
-	validator.Schema(config)
-	_, err := os.Stat(config.DownloadDir)
-	if os.IsNotExist(err) {
+	func() {
+		defer ctxCancel()
+		color.Cyan("Parsing config file...")
+		config := schema.LoadDownloadSongsConfig(*flSongsFile)
+		validator.Schema(config)
+		_, err := os.Stat(config.DownloadDir)
+		if os.IsNotExist(err) {
 			color.Yellow("%s not found!\nSystem is creating folder %s...\n", config.DownloadDir, config.DownloadDir)
 			os.MkdirAll(config.DownloadDir, os.ModePerm)
 			_, err = os.Stat(config.DownloadDir)
@@ -33,12 +39,14 @@ func main() {
 				os.Exit(0)
 			}
 			color.Cyan("%s is created successfully!\n", config.DownloadDir)
-	}
-	color.Cyan("Start downloading... Please patient!")
-	err = downloader.DownloadSongs(config.Web, config.SongsUrls, config.DownloadDir)
-	if err != nil {
-		color.Red("System error!")
-		os.Exit(0)
-	}
-	color.Green("DONE!")
+		}
+		color.Cyan("Start downloading... Please patient!")
+		err = downloader.DownloadSongs(ctx, config.Web, config.SongsUrls, config.DownloadDir)
+		if err != nil {
+			color.Red("System error!")
+			os.Exit(0)
+		}
+		color.Green("DONE!")
+	}()
+	<-ctx.Done()
 }

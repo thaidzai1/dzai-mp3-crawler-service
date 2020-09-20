@@ -1,6 +1,7 @@
 package downloader
 
 import (
+	"context"
 	"fmt"
 	"io"
 	"net/http"
@@ -42,11 +43,11 @@ func DownloadFile(folderPath string, filename string, url string, noti chan stri
 }
 
 // DownloadSongs will download song of each source web
-func DownloadSongs(source string, urls []string, folderPath string) error {
+func DownloadSongs(ctx context.Context, source string, urls []string, folderPath string) error {
 	if source == "zingmp3" {
 		var zingMp3Responses []*zingmp3.SongInfoResponse
 		for _, url := range urls {
-			zingMp3Res, err := crawler.CrawlZingMp3Song(url)
+			zingMp3Res, err := crawler.CrawlZingMp3Song(ctx, url)
 			if err != nil {
 				color.Red("%s is failed!!!", url)
 			}

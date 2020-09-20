@@ -10,6 +10,7 @@ import (
 	"regexp"
 
 	"github.com/chromedp/cdproto/dom"
+	"github.com/chromedp/cdproto/runtime"
 	"github.com/chromedp/chromedp"
 	"github.com/fatih/color"
 	"github.com/thaidzai285/dzai-mp3-crawler-service/pkg/assemble"
@@ -26,14 +27,26 @@ func ScrapingZingMp3(ctx context.Context, url string, selector string) string {
 		chromedp.WaitVisible(`button[type="submit"]`),
 		chromedp.Click(`button[type="submit"]`, chromedp.NodeVisible),
 		chromedp.ActionFunc(func(ctx context.Context) error {
+			_, exp, err := runtime.Evaluate(`window.scrollTo(0,document.body.scrollHeight);`).Do(ctx)
+			if err != nil {
+				return err
+			}
+			if exp != nil {
+				return exp
+			}
+			return nil
+		}),
+		chromedp.ActionFunc(func(ctx context.Context) error {
 			node, err := dom.GetDocument().Do(ctx)
 			if err != nil {
 				return err
 			}
 
 			html, err = dom.GetOuterHTML().WithNodeID(node.NodeID).Do(ctx)
+			color.Blue("html", html)
 			return err
 		}),
+		// chromedp.WaitVisible("abc"),
 	}
 	chromedp.Run(ctx, scrapingTasks...)
 	return html
@@ -56,7 +69,7 @@ func GetZingMp3SongCodes(str string) []string {
 }
 
 // CrawlZingMp3Song will crawl zingmp3 page by url
-func CrawlZingMp3Song(url string) ([]*zingmp3.SongInfoResponse, error) {
+func CrawlZingMp3Song(ctx context.Context, url string) ([]*zingmp3.SongInfoResponse, error) {
 	dir, err := ioutil.TempDir("", "chromedp-crawler")
 	if err != nil {
 		return nil, err
@@ -66,7 +79,7 @@ func CrawlZingMp3Song(url string) ([]*zingmp3.SongInfoResponse, error) {
 		chromedp.DisableGPU,
 		chromedp.NoDefaultBrowserCheck,
 		// use headless browser on production
-		// chromedp.Flag("headless", false),
+		chromedp.Flag("headless", false),
 		chromedp.UserDataDir(dir),
 	)
 
@@ -78,7 +91,9 @@ func CrawlZingMp3Song(url string) ([]*zingmp3.SongInfoResponse, error) {
 	defer chromeCtxCancel()
 	zingHTML := ScrapingZingMp3(chromeCtx, url, "#main-body")
 	codes := GetZingMp3SongCodes(zingHTML)
+	color.Blue("codes", len(codes))
 	apis := assemble.ZingMp3SongAPIs(codes, "/song/get-song-info")
+	color.Blue("apis", len(apis))
 
 	respChan := make(chan []byte)
 	errChan := make(chan error)
