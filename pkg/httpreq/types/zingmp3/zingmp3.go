@@ -19,9 +19,10 @@ type SongInfoResponseData struct {
 	Thumbnail       string    `json:"thumbnail"`
 	ThumbnailMedium string    `json:"thumbnail_medium"`
 	Lyric           string    `json:"lyric"`
-	Gernes          []Gerne   `json:"gernes"`
-	Artists         []Artist  `json:"artists"`
+	Gernes          []*Gerne  `json:"gernes"`
+	Artists         []*Artist `json:"artists"`
 	Streaming       Streaming `json:"streaming"`
+	Duration        int32     `json:"duration"`
 }
 
 // Album ...

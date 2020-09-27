@@ -3,6 +3,7 @@ package httpreq
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"io/ioutil"
 	"net/http"
 )
@@ -27,15 +28,16 @@ func Call(url string, method string, body interface{}, resp chan []byte, errChan
 	response, err := client.Do(req)
 	if err != nil {
 		errChan <-err
+		fmt.Println("error: ", err, url)
 		return
 	}
 
 	byteRes, err := ioutil.ReadAll(response.Body)
 	if err != nil {
 		errChan <-err
+		fmt.Println("error read: ", err, url)
 		return
 	}
 
-	errChan <-err
 	resp <-byteRes
 }
