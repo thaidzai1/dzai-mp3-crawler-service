@@ -1,0 +1,42 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: dzai-mp3-crawler-service
+  labels:
+    app: dzai-mp3-crawler-service
+spec:
+  ports:
+    - name: app-grpc
+      port: 4001
+      targetPort: 4001
+  selector:
+    app: dzai-mp3-crawler-service
+  type: NodePort
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: dzai-mp3-crawler-service
+  labels:
+    app: dzai-mp3-crawler-service
+spec:
+  replicas: 1
+  revisionHistoryLimit: 1
+  selector:
+    matchLabels:
+      app: dzai-mp3-crawler-service
+  template:
+    metadata:
+      labels:
+        app: dzai-mp3-crawler-service
+    spec:
+      containers:
+        - name: dzai-mp3-crawler-service-container
+          image: "thaiduong28597/dzai-mp3-crawler-service"
+          imagePullPolicy: Always
+          ports:
+            - name: app-grpc
+              containerPort: 4001
+          workingDir: /go/src/app
+          command: ["bash", "-c", "${GOPATH}/bin/dcrawl"]
+      restartPolicy: Always
