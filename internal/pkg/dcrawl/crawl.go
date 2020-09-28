@@ -4,7 +4,7 @@ import (
 	"context"
 	"log"
 
-	"github.com/thaidzai285/dzai-mp3-crawler-service/pkg/crawler"
+	"github.com/thaidzai285/dzai-mp3-crawler-service/internal/pkg/crawler"
 	"github.com/thaidzai285/dzai-mp3-protobuf/pkg/pb"
 )
 

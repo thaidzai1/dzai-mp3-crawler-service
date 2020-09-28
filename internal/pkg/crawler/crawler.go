@@ -13,9 +13,9 @@ import (
 	"github.com/chromedp/cdproto/runtime"
 	"github.com/chromedp/chromedp"
 	"github.com/fatih/color"
-	"github.com/thaidzai285/dzai-mp3-crawler-service/pkg/assemble"
-	"github.com/thaidzai285/dzai-mp3-crawler-service/pkg/httpreq"
-	"github.com/thaidzai285/dzai-mp3-crawler-service/pkg/httpreq/types/zingmp3"
+	"github.com/thaidzai285/dzai-mp3-crawler-service/internal/pkg/assemble"
+	"github.com/thaidzai285/dzai-mp3-crawler-service/internal/pkg/httpreq"
+	"github.com/thaidzai285/dzai-mp3-crawler-service/internal/pkg/httpreq/types/zingmp3"
 )
 
 // ScrapingZingMp3 will return body html of zingmp3

@@ -8,8 +8,8 @@ import (
 	"os"
 
 	"github.com/fatih/color"
-	"github.com/thaidzai285/dzai-mp3-crawler-service/pkg/crawler"
-	"github.com/thaidzai285/dzai-mp3-crawler-service/pkg/httpreq/types/zingmp3"
+	"github.com/thaidzai285/dzai-mp3-crawler-service/internal/pkg/crawler"
+	"github.com/thaidzai285/dzai-mp3-crawler-service/internal/pkg/httpreq/types/zingmp3"
 )
 
 // DownloadFile will download file from url to filePath

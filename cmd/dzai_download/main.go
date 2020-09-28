@@ -6,9 +6,9 @@ import (
 	"os"
 
 	"github.com/fatih/color"
+	"github.com/thaidzai285/dzai-mp3-crawler-service/internal/pkg/downloader"
 	"github.com/thaidzai285/dzai-mp3-crawler-service/internal/pkg/schema"
 	"github.com/thaidzai285/dzai-mp3-crawler-service/internal/pkg/validator"
-	"github.com/thaidzai285/dzai-mp3-crawler-service/pkg/downloader"
 )
 
 var (
