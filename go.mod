@@ -13,7 +13,7 @@ require (
 	github.com/mailru/easyjson v0.7.6 // indirect
 	github.com/mattn/go-colorable v0.1.7 // indirect
 	github.com/niemeyer/pretty v0.0.0-20200227124842-a10e7caefd8e // indirect
-	github.com/thaidzai285/dzai-mp3-protobuf v0.0.0-20200922161228-9fffe3f039e3
+	github.com/thaidzai285/dzai-mp3-protobuf v0.0.0-20200929174715-8147913e9a69
 	golang.org/x/net v0.0.0-20200904194848-62affa334b73 // indirect
 	golang.org/x/sys v0.0.0-20200918174421-af09f7315aff // indirect
 	golang.org/x/text v0.3.3 // indirect
