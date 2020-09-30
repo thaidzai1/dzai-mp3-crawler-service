@@ -73,7 +73,6 @@ func CrawlZingMp3Song(ctx context.Context, url string) ([]*zingmp3.SongInfoRespo
 	if err != nil {
 		return nil, err
 	}
-	log.Println("ahoy1", err)
 	defer os.RemoveAll(dir)
 	opts := append(chromedp.DefaultExecAllocatorOptions[:],
 		chromedp.DisableGPU,
@@ -97,7 +96,6 @@ func CrawlZingMp3Song(ctx context.Context, url string) ([]*zingmp3.SongInfoRespo
 	if len(apis) == 0 {
 		return zingMp3Responses, nil
 	}
-	log.Println("apis", apis)
 
 	respChan := make(chan []byte)
 	errChan := make(chan error)
@@ -108,7 +106,6 @@ func CrawlZingMp3Song(ctx context.Context, url string) ([]*zingmp3.SongInfoRespo
 
 	var zingMp3ResBytes [][]byte
 	countZingMp3Res := 0
-	log.Println("ahoyy loop")
 Loop:
 	for {
 		select {
@@ -126,7 +123,6 @@ Loop:
 			}
 		}
 	}
-	log.Println("ahoyy loop done")
 
 	for _, resByte := range zingMp3ResBytes {
 		zingMp3Res := &zingmp3.SongInfoResponse{}

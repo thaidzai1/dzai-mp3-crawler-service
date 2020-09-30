@@ -22,7 +22,6 @@ func (c *CrawlerService) Crawl(ctx context.Context, in *pb.CrawlRequest) (*pb.Cr
 	if in.Source == "zingmp3" {
 		// https://zingmp3.vn/album/Today-s-Top-Hits-Various-Artists/ZWZC0WCE.html
 		zingMp3Res, err := crawler.CrawlZingMp3Song(ctx, in.Urls[0])
-		log.Println("ahoy", err)
 		if err != nil {
 			return &pb.CrawlResponse{
 				Success: false,
